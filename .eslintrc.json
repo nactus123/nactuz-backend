@@ -1,0 +1,47 @@
+{
+  "env": {
+    "node": true,
+    "browser": true,
+    "es2021": true
+  },
+  "extends": ["eslint:recommended"],
+  "overrides": [],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "rules": {
+    "quotes": [
+      "error",
+      "single",
+      {
+        "avoidEscape": true,
+        "allowTemplateLiterals": true
+      }
+    ],
+    "semi": ["warn", "always"],
+    "no-unused-vars": ["warn"],
+    "strict": ["error", "global"],
+    "func-style": ["error", "expression"],
+    "no-new-func": "error",
+    "no-param-reassign": "error",
+    "prefer-arrow-callback": "error",
+    "arrow-parens": ["error", "always"],
+    "arrow-body-style": ["error", "as-needed"],
+
+    "no-invalid-this": "error",
+    "prefer-destructuring": [
+      "error",
+      {
+        "array": true
+      },
+      {
+        "enforceForRenamedProperties": false
+      }
+    ],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "eqeqeq": "error",
+    "no-with": "error"
+  }
+}
