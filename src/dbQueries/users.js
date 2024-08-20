@@ -10,11 +10,12 @@ const addUser = async (firstName, lastName, phoneNumber, role, password) => {
     // Execute the query with parameterized values
 
     const result = await query(sql, values);
-    console.log({ result });
+    console.log({ err: result.error });
+    // if (result.) throw new Error(result);
     return { statusCode: 200, message: 'User added successfully' };
   } catch (err) {
     console.error(err.stack);
-    return { statusCode: 500, message: err.message };
+    throw new Error(err);
   }
 };
 
