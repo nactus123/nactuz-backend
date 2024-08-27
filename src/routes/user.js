@@ -64,11 +64,20 @@ router.post('/login', async (req, res) => {
     const {
       body: { password, phoneNumber }
     } = req;
-    const { dbPassword, role } = await signInUser(phoneNumber, password);
+    const { dbPassword, role, isActive, kycVerified } = await signInUser(
+      phoneNumber,
+      password
+    );
     if (password !== decrypt(dbPassword)) throw new Error(INVALID_PASSWORD);
-    res.status(201).json({ msg: 'Login Successful', role });
+    const body =
+      kycVerified !== null
+        ? { role, isActive, kycVerified }
+        : { role, isActive };
+    res.status(201).json({ msg: 'Login Successful', ...body });
   } catch (err) {
     console.log(err.stack);
+    if (err.message.includes(INVALID_PASSWORD))
+      res.status(403).json({ msg: INVALID_PASSWORD });
     res
       .status(500)
       .json({ msg: 'Unable to update profile', error: err.message });

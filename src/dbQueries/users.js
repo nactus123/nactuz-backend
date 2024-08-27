@@ -67,16 +67,21 @@ const updateProfile = async (data, phoneNumber) => {
 const signInUser = async (phoneNumber) => {
   try {
     const sql = `
-      SELECT password,role FROM users WHERE phone_number=
+      SELECT password,role,is_active,kyc_verified FROM users WHERE phone_number=
       $1
     `;
     const values = [phoneNumber];
 
     // Execute the query with parameterized values
     const response = await query(sql, values);
-    const { password: dbPassword, role } = { ...response.rows[0] };
+    const {
+      password: dbPassword,
+      role,
+      is_active: isActive,
+      kyc_verified: kycVerified
+    } = { ...response.rows[0] };
     console.log({ dbPassword, role });
-    return { dbPassword, role };
+    return { dbPassword, role, isActive, kycVerified };
   } catch (err) {
     console.log(err.stack);
     throw new Error(err);
