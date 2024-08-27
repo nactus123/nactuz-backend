@@ -34,7 +34,7 @@ router.post('/updateProfile', async (req, res) => {
     console.log('Received update profile request');
     const { phoneNumber, firstName, lastName, password } = req.body;
 
-    const { kyc_verified: kycVerified } = await updateProfile(
+    const { role, kycVerified } = await updateProfile(
       {
         first_name: firstName,
         last_name: lastName,
@@ -43,11 +43,13 @@ router.post('/updateProfile', async (req, res) => {
       },
       phoneNumber
     );
-
+    const body =
+      kycVerified !== null
+        ? { role, isActive: false, kycVerified }
+        : { role, isActive: false };
     res.status(201).json({
       msg: 'User Profile Updated successfully',
-      isActive: false,
-      kycVerified
+      ...body
     });
   } catch (err) {
     console.error('Error occurred:', err.stack); // Log the error stack trace for debugging

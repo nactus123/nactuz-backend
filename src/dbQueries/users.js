@@ -53,12 +53,12 @@ const updateProfile = async (data, phoneNumber) => {
     // Add userId to the values array
     await query(sql, values);
     sql = `
-      SELECT kyc_verified FROM users WHERE phone_number=
+      SELECT kyc_verified,role FROM users WHERE phone_number=
       $1
     `;
     const result = await query(sql, [phoneNumber]);
-
-    return { ...result.rows[0] };
+    const { role, kyc_verified: kycVerified } = { ...result.rows[0] };
+    return { role, kycVerified };
   } catch (err) {
     console.log(err.stack);
     throw new Error(err);
