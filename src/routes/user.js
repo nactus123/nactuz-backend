@@ -13,10 +13,15 @@ router.post('/registerUser', async (req, res) => {
     console.log(req.body);
 
     // Add the user to the database
-    await addUser(phoneNumber, role, encrypt(password));
+    const { kycVerified } = await addUser(phoneNumber, role, encrypt(password));
 
     // Respond with a success message
-    res.status(201).json({ msg: 'User registered successfully' });
+    res.status(201).json({
+      msg: 'User registered successfully',
+      role,
+      isActive: false,
+      kycVerified
+    });
   } catch (err) {
     console.error('Error occurred:', err.stack); // Log the error stack trace for debugging
     res
@@ -29,18 +34,21 @@ router.post('/updateProfile', async (req, res) => {
     console.log('Received update profile request');
     const { phoneNumber, firstName, lastName, password } = req.body;
 
-    await updateProfile(
+    const { kyc_verified: kycVerified } = await updateProfile(
       {
         first_name: firstName,
         last_name: lastName,
-        password: encrypt(password),
+        password: password ? encrypt(password) : null,
         is_active: true
       },
       phoneNumber
     );
-    res
-      .status(201)
-      .json({ msg: 'User Profile Updated successfully', isActive: false });
+
+    res.status(201).json({
+      msg: 'User Profile Updated successfully',
+      isActive: false,
+      kycVerified
+    });
   } catch (err) {
     console.error('Error occurred:', err.stack); // Log the error stack trace for debugging
     res
@@ -56,7 +64,7 @@ router.post('/login', async (req, res) => {
     } = req;
     const { dbPassword, role } = await signInUser(phoneNumber, password);
     if (password !== decrypt(dbPassword)) throw new Error(INVALID_PASSWORD);
-    res.status(201).json({ msg: 'Login Successful' });
+    res.status(201).json({ msg: 'Login Successful', role });
   } catch (err) {
     console.log(err.stack);
     res

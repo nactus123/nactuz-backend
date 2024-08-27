@@ -1,16 +1,24 @@
 import query from './index.js';
 const addUser = async (phoneNumber, role, password) => {
   try {
-    const sql = `INSERT INTO users ( phone_number, role, password, is_active)
+    let sql = `INSERT INTO users ( phone_number, role, password, is_active)
     VALUES ($1, $2, $3, $4)`;
     const values = [phoneNumber, role, password, false];
-
+    if (role === 'teacher') {
+      sql = `INSERT INTO users ( phone_number, role, password, is_active,kyc_verified)
+    VALUES ($1, $2, $3, $4,$5)`;
+      values.push(false);
+    }
     // // Execute the query with parameterized values
 
     const result = await query(sql, values);
     console.log({ err: result.error });
     // if (result.) throw new Error(result);
-    return { statusCode: 200, message: 'User added successfully' };
+    return {
+      statusCode: 200,
+      message: 'User added successfully',
+      kycVerified: false
+    };
   } catch (err) {
     console.error(err.stack);
     throw new Error(err);
@@ -19,10 +27,11 @@ const addUser = async (phoneNumber, role, password) => {
 
 const updateProfile = async (data, phoneNumber) => {
   try {
-    console.log(phone);
+    console.log({ data });
     const keys = Object.keys(data).filter(
-      (key) => data[key] !== undefined && key !== phoneNumber
+      (key) => data[key] && key !== phoneNumber
     );
+    console.log(keys);
     const values = keys.map((key) => data[key]);
     console.log({ values });
     if (keys.length === 0) {
@@ -42,8 +51,14 @@ const updateProfile = async (data, phoneNumber) => {
     values.push(phoneNumber);
     console.log({ sql });
     // Add userId to the values array
-    const result = await query(sql, values);
-    console.log({ err: result?.error });
+    await query(sql, values);
+    sql = `
+      SELECT kyc_verified FROM users WHERE phone_number=
+      $1
+    `;
+    const result = await query(sql, [phoneNumber]);
+
+    return { ...result.rows[0] };
   } catch (err) {
     console.log(err.stack);
     throw new Error(err);
