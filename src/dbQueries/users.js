@@ -80,7 +80,6 @@ const signInUser = async (phoneNumber) => {
       is_active: isActive,
       kyc_verified: kycVerified
     } = { ...response.rows[0] };
-    console.log({ dbPassword, role });
     return { dbPassword, role, isActive, kycVerified };
   } catch (err) {
     console.log(err.stack);

@@ -78,9 +78,10 @@ router.post('/login', async (req, res) => {
     console.log(err.stack);
     if (err.message.includes(INVALID_PASSWORD))
       res.status(403).json({ msg: INVALID_PASSWORD });
-    res
-      .status(500)
-      .json({ msg: 'Unable to update profile', error: err.message });
+    else
+      res
+        .status(500)
+        .json({ msg: 'Unable to update profile', error: err.message });
   }
 });
 export default router;
