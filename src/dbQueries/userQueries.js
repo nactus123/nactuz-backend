@@ -1,27 +1,38 @@
 import query from './index.js';
+
 const addUser = async (phoneNumber, role, password) => {
   try {
-    let sql = `INSERT INTO users ( phone_number, role, password, is_active)
-    VALUES ($1, $2, $3, $4)`;
+    // Check if the user already exists
+    const checkUserSql = 'SELECT phone_number FROM users WHERE phone_number = $1';
+    const existingUser = await query(checkUserSql, [phoneNumber]);
+
+    if (existingUser.rows.length > 0) {
+      // User already exists
+      throw new Error('User already exists with this phone number');
+    }
+
+    // If user does not exist, proceed to insert the new user
+    let sql = `INSERT INTO users (phone_number, role, password, is_active)
+               VALUES ($1, $2, $3, $4) RETURNING kyc_verified`;
     const values = [phoneNumber, role, password, false];
+
     if (role === 'teacher') {
-      sql = `INSERT INTO users ( phone_number, role, password, is_active,kyc_verified)
-    VALUES ($1, $2, $3, $4,$5)`;
+      sql = `INSERT INTO users (phone_number, role, password, is_active, kyc_verified)
+             VALUES ($1, $2, $3, $4, $5) RETURNING kyc_verified`;
       values.push(false);
     }
-    // // Execute the query with parameterized values
 
     const result = await query(sql, values);
-    console.log({ err: result.error });
-    // if (result.) throw new Error(result);
+    const kycVerified = result.rows[0].kyc_verified;
+
     return {
       statusCode: 200,
       message: 'User added successfully',
-      kycVerified: false
+      kycVerified,
     };
   } catch (err) {
     console.error(err.stack);
-    throw new Error(err);
+    throw new Error(err.message);
   }
 };
 
